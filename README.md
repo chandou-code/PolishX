@@ -1,66 +1,90 @@
-# AI 热键润色助手
+# PolishX - AI 热键润色助手
 
-基于 SiliconFlow API 的文本润色工具，支持选中文字后按 `Ctrl+X` 自动完成 **剪切 → AI润色 → 粘贴** 流程。
+> 灵感来源：游戏里打字想润色一下还得切屏开豆包？太麻烦了。一键搞定，切屏都省了。
 
-## 文件说明
+基于 SiliconFlow API 的全局热键文本润色工具。选中文字按 `Ctrl+X`，自动完成 **剪切 → AI 润色 → 粘贴** 全流程，全程无需切屏。
 
-### ai_polish.py
-AI 润色核心模块，调用 SiliconFlow `/v1/messages` API 进行文本润色。
+---
 
-**主要功能：**
-- 调用硅基流动 API 润色文本
-- 返回润色后的多个候选结果（通常3个）
-- 支持重试机制（最多3次）
-- 兼容多种 API 响应格式
+## ✨ 特性
 
-**关键函数：**
-- `polish_text(text, model, max_retries)` - 润色文本，返回候选结果列表
+- **一键润色**：选中文字按 `Ctrl+X`，几秒后自动替换
+- **全局热键**：任意应用内均可使用，游戏、聊天、文档通吃
+- **零切屏操作**：后台静默运行，不打断当前工作流
+- **自定义提示词**：润色风格、语气、场景均可自由配置
+- **多候选结果**：API 返回多个版本，自动选用第一个
+- **稳定可靠**：心跳监控 + 剪贴板重试机制，长期运行不掉线
 
-**配置项：**
-- `API_KEY` - SiliconFlow API 密钥
-- `BASE_URL` - API 端点地址
-- `DEFAULT_MODEL` - 默认使用 `deepseek-ai/DeepSeek-V4-Flash`
+---
 
-### hotkey_polish.py
-热键监听模块，监听 `Ctrl+X` 触发润色流程。
+## 🚀 快速开始
 
-**主要功能：**
-- 监听 `Ctrl+X` 热键
-- 选中文字后自动：复制 → AI润色 → 删除原文字 → 粘贴润色结果
-- 生产者-消费者模式处理任务，避免递归触发
-- 心跳监控确保程序稳定运行
-- 剪贴板重试机制，提高稳定性
-
-**使用方法：**
-```bash
-# 以管理员身份运行（推荐）
-python hotkey_polish.py
-
-# 或直接运行
-python hotkey_polish.py
-```
-
-## 使用流程
-
-1. 启动 `hotkey_polish.py`
-2. 在任意应用中选中要润色的文字
-3. 按 `Ctrl+X`
-4. 程序自动：剪切文字 → 发送 API 润色 → 粘贴润色后的文字
-5. 按 `Ctrl+C` 或关闭窗口退出程序
-
-## 依赖安装
+### 安装依赖
 
 ```bash
 pip install pyperclip keyboard requests
 ```
 
-## 注意事项
+### 配置 API 密钥
 
-1. **管理员权限**：Windows 下 `keyboard` 库需要管理员权限才能正常监听热键
-2. **API 配额**：确保 SiliconFlow 账户有足够余额
-3. **网络连接**：需要稳定的网络连接访问 API
+编辑 `ai_polish.py`，将 `API_KEY` 替换为你的 SiliconFlow 密钥。
 
-## 运行日志示例
+### 启动程序
+
+**Windows 下请以管理员身份运行**（keyboard 库需要管理员权限监听热键）：
+
+```bash
+python hotkey_polish.py
+```
+
+---
+
+## 📋 使用流程
+
+1. 启动 `hotkey_polish.py`，看到 `[热键已注册] ctrl+x` 即为就绪
+2. 在任意输入框中打好文字，全选
+3. 按下 `Ctrl+X`
+4. 等待 2-5 秒，文字自动被润色后的版本替换
+5. 按 `Ctrl+C` 或关闭窗口退出
+
+---
+
+## 📁 项目结构
+
+### ai_polish.py
+AI 润色核心模块，封装 SiliconFlow API 调用。
+
+| 项目 | 说明 |
+|------|------|
+| `polish_text(text, model, max_retries)` | 润色文本，返回候选结果列表 |
+| `API_KEY` | SiliconFlow API 密钥 |
+| `BASE_URL` | API 端点，默认为 `https://api.siliconflow.cn/v1/messages` |
+| `DEFAULT_MODEL` | 默认模型 `deepseek-ai/DeepSeek-V4-Flash` |
+| `SYSTEM_PROMPT` | 系统提示词，控制输出格式 |
+
+### hotkey_polish.py
+热键监听与自动化操作模块。
+
+| 功能 | 说明 |
+|------|------|
+| 热键监听 | 全局监听 `Ctrl+X`，`suppress=True` 阻止事件穿透 |
+| 生产者-消费者 | 热键回调仅入队，工作线程异步处理，避免递归触发 |
+| 等效剪切 | 使用 `Ctrl+C` + `Delete` 实现剪切，绕开热键钩子冲突 |
+| 心跳监控 | 每分钟输出运行状态，确保程序存活 |
+| 剪贴板容错 | 读写剪贴板均带重试机制，提高稳定性 |
+
+---
+
+## ⚠️ 注意事项
+
+1. **管理员权限**：Windows 平台 `keyboard` 库需要管理员权限才能正常注册全局热键
+2. **API 配额**：确保 SiliconFlow 账户余额充足
+3. **网络连接**：需要稳定访问 api.siliconflow.cn
+4. **密钥安全**：请勿将包含真实 API_KEY 的代码提交到公开仓库
+
+---
+
+## 📝 运行日志示例
 
 ```
 [20:32:55] ==================================================
@@ -77,3 +101,9 @@ pip install pyperclip keyboard requests
 [20:34:27] [润色中] 原文: 好舒服啊
 [20:34:28] [完成] 拉你一起玩啊，怕你闲出病来
 ```
+
+---
+
+## License
+
+MIT
