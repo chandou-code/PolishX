@@ -1,0 +1,12 @@
+{
+    "api_key": "",
+    "base_url": "https://api.siliconflow.cn/v1/chat/completions",
+    "default_model": "deepseek-ai/DeepSeek-V4-Flash",
+    "max_tokens": 300,
+    "temperature": 0.5,
+    "top_p": 0.9,
+    "top_k": 50,
+    "frequency_penalty": 0.5,
+    "thinking_budget": 1024,
+    "reasoning_effort": "low"
+}
