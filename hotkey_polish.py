@@ -14,7 +14,7 @@ import tkinter as tk
 from tkinter import scrolledtext, messagebox
 from queue import Queue
 from datetime import datetime
-from ai_polish import polish_text
+from ai_polish_2 import polish_text, get_last_usage, get_last_elapsed
 
 try:
     import pystray
@@ -221,13 +221,27 @@ def do_polish_work():
         logging.info(f"[润色中] 原文: {clipped_text[:60]}{'...' if len(clipped_text) > 60 else ''}")
 
         results = polish_text(clipped_text)
+        usage = get_last_usage()
+        elapsed = get_last_elapsed()
 
         if results and len(results) >= 1:
             polished = results[0]
             logging.info(f"[完成] {polished[:60]}")
 
             # 保存结果到日志缓存
-            result_text = f"原文: {clipped_text}\n\n候选结果 (共 {len(results)} 个):\n"
+            result_text = f"原文: {clipped_text}\n\n"
+            
+            if usage:
+                input_tokens = usage.get('input_tokens', 0)
+                output_tokens = usage.get('output_tokens', 0)
+                total_tokens = input_tokens + output_tokens
+                result_text += f"Token消耗: 输入 {input_tokens}, 输出 {output_tokens}, 总计 {total_tokens}\n"
+            if elapsed is not None:
+                result_text += f"请求耗时: {elapsed:.2f} 秒\n"
+            if usage or elapsed is not None:
+                result_text += "\n"
+            
+            result_text += f"候选结果 (共 {len(results)} 个):\n"
             for i, r in enumerate(results, 1):
                 result_text += f"   {i}. {r}\n"
             add_log_entry(f"[提取结果] JSON解析成功，找到 {len(results)} 个候选结果", result_text)

@@ -1,12 +1,22 @@
 {
-    "api_key": "",
-    "base_url": "https://api.siliconflow.cn/v1/chat/completions",
-    "default_model": "deepseek-ai/DeepSeek-V4-Flash",
+  "api": {
+    "url": "https://api.siliconflow.cn/v1/messages",
+    "key": ""
+  },
+  "model": {
+    "name": "deepseek-ai/DeepSeek-V4-Flash",
     "max_tokens": 300,
-    "temperature": 0.5,
+    "temperature": 0.85,
     "top_p": 0.9,
-    "top_k": 50,
-    "frequency_penalty": 0.5,
-    "thinking_budget": 1024,
-    "reasoning_effort": "low"
+    "top_k": 50
+  },
+  "prompt": {
+    "system": "你是一个擅长改写句子的助手。直接输出改写后的句子，不要任何解释、思考过程或额外内容。",
+    "user_template": "把这句话改得更口语化、更嘲讽、更恶心人，直接输出结果，不要解释：{text}"
+  },
+  "request": {
+    "max_retries": 3,
+    "timeout": 60,
+    "stop_sequences": ["\n\n", "思考：", "分析："]
+  }
 }
